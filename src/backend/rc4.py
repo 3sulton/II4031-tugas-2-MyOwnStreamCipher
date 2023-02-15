@@ -70,9 +70,26 @@ class rc4:
         self.P = self.PRGA("d")
         # output dari decrypt bisa berupa string atau base64
         # meskipun sebenarnya yang diharapkan pasti string sih
-        if isString:
-            return self.P.decode()
-        return self.bytearray_to_base64(self.P).decode()
+        try:
+            if isString:
+                return self.P.decode()
+            return self.bytearray_to_base64(self.P).decode()
+        except Exception as e:
+            raise e
+
+    def encrypt_file(self, file_path, K, fileout):
+        self.init(K=K)
+        with open(file_path, "rb") as file:
+            self.P = bytearray(file.read())
+        self.KSA()
+        return self.PRGA("e")
+
+    def decrypt_file(self, file_path, K, fileout):
+        self.init(K=K)
+        with open(file_path, "rb") as file:
+            self.C = bytearray(file.read())
+        self.KSA()
+        return self.PRGA("d")
 
 if __name__ == "__main__":
     r = rc4()

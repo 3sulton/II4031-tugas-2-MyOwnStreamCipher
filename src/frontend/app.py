@@ -1,4 +1,5 @@
 import datetime
+from pydoc import plain
 import sys, os.path
 be_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 + '/backend/')
@@ -33,7 +34,7 @@ def App(screen=None):
     window.configure(bg = "#F8EFD3")
 
     # true ketika encrypt file selain txt
-    global is_file
+    global is_file, byte_file, file_path
     is_file = False
 
     canvas = Canvas(
@@ -75,7 +76,7 @@ def App(screen=None):
     )
 
     def select_plain_file():
-        global is_file
+        global is_file, file_path
         file_path = filedialog.askopenfilename(initialdir = Path(__file__),)
         ext = file_path.split(".")[-1]
         content = file_path
@@ -186,6 +187,7 @@ def App(screen=None):
     )
 
     def encrypt():
+        global byte_file, is_file
         # plain teks
         plain_teks = entry_input.get('1.0', 'end')
         key = entry_key.get('1.0', 'end')
@@ -195,8 +197,30 @@ def App(screen=None):
         if is_string_format.get():
             tk.messagebox.showwarning(message="RC4 encryption does not support string output")
             return
+        # case kalau dia sudah pilih file
+        # dan yang diencrypt bukan file tersebut
+        if is_file and plain_teks.replace("\n", "") != file_path:
+            is_file = False
         r = rc4()
-        result = r.encrypt(plain_teks, key)
+        if is_file:
+            if "/" in plain_teks:
+                split = plain_teks.split("/")
+            elif "\\" in plain_teks:
+                split = plain_teks.split("\\")
+            filename_with_ext = split[-1]
+            split_plain_filename = filename_with_ext.split(".")
+            split_plain_filename[0] += "-e"
+            split[-1] = ".".join(split_plain_filename)
+            if "/" in plain_teks:
+                fileout = "/".join(split)
+            elif "\\" in plain_teks:
+                fileout = "\\".join(split)
+            plain_teks = plain_teks.replace("\n", "")
+            fileout = fileout.replace("\n", "")
+            byte_file = r.encrypt_file(plain_teks, key, fileout)
+            result = fileout
+        else:
+            result = r.encrypt(plain_teks, key)
         entry_output.delete("1.0", tk.END)
         entry_output.insert("1.0", result)
 
@@ -219,14 +243,41 @@ def App(screen=None):
     )
 
     def decrypt():
+        global byte_file, is_file
         # plain teks
         plain_teks = entry_input.get('1.0', 'end')
         key = entry_key.get('1.0', 'end')
         if key == '\n':
             tk.messagebox.showwarning(message="Keynya jangan kosong, hadeh")
             return
+        # case kalau dia sudah pilih file
+        # dan yang diencrypt bukan file tersebut
+        if is_file and plain_teks.replace("\n", "") != file_path:
+            is_file = False
         r = rc4()
-        result = r.decrypt(plain_teks, key, is_string_format.get())
+        try:
+            if is_file:
+                if "/" in plain_teks:
+                    split = plain_teks.split("/")
+                elif "\\" in plain_teks:
+                    split = plain_teks.split("\\")
+                filename_with_ext = split[-1]
+                split_plain_filename = filename_with_ext.split(".")
+                split_plain_filename[0] += "-d"
+                split[-1] = ".".join(split_plain_filename)
+                if "/" in plain_teks:
+                    fileout = "/".join(split)
+                elif "\\" in plain_teks:
+                    fileout = "\\".join(split)
+                plain_teks = plain_teks.replace("\n", "")
+                fileout = fileout.replace("\n", "")
+                byte_file = r.decrypt_file(plain_teks, key, fileout)
+                result = fileout
+            else:
+                result = r.decrypt(plain_teks, key, is_string_format.get())
+        except:
+            tk.messagebox.showwarning(message="Invalid base64 string")
+            return
         entry_output.delete("1.0", tk.END)
         entry_output.insert("1.0", result)
 
@@ -288,8 +339,11 @@ def App(screen=None):
     )
 
     def save_file():
-        if not is_file:
-            file_content = entry_output.get('1.0', 'end')
+        file_content = entry_output.get('1.0', 'end').replace("\n", "")
+        if is_file:
+            with open(file_content, "wb") as file:
+                file.write(bytes(byte_file))
+        else:
             filename = "rc4-" + datetime.datetime.now().strftime("%H%M%S-%Y%m%d") + ".txt"
             with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '/download/' + filename, "w") as file:
                 file.write(file_content)
