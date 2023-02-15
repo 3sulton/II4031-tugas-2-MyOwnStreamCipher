@@ -216,7 +216,7 @@ def App(screen=None):
                 fileout = "\\".join(split)
             plain_teks = plain_teks.replace("\n", "")
             fileout = fileout.replace("\n", "")
-            byte_file = r.encrypt_file(plain_teks, key, fileout)
+            byte_file = r.encrypt_file(plain_teks, key)
             result = fileout
         else:
             result = r.encrypt(plain_teks, key)
@@ -270,7 +270,7 @@ def App(screen=None):
                     fileout = "\\".join(split)
                 plain_teks = plain_teks.replace("\n", "")
                 fileout = fileout.replace("\n", "")
-                byte_file = r.decrypt_file(plain_teks, key, fileout)
+                byte_file = r.decrypt_file(plain_teks, key)
                 result = fileout
             else:
                 result = r.decrypt(plain_teks, key, is_string_format.get())
