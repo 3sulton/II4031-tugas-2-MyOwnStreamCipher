@@ -77,14 +77,14 @@ class rc4:
         except Exception as e:
             raise e
 
-    def encrypt_file(self, file_path, K, fileout):
+    def encrypt_file(self, file_path, K):
         self.init(K=K)
         with open(file_path, "rb") as file:
             self.P = bytearray(file.read())
         self.KSA()
         return self.PRGA("e")
 
-    def decrypt_file(self, file_path, K, fileout):
+    def decrypt_file(self, file_path, K):
         self.init(K=K)
         with open(file_path, "rb") as file:
             self.C = bytearray(file.read())
