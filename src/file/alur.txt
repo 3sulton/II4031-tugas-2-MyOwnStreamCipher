@@ -1,0 +1,4 @@
+string -> bytearray -> encrypt -> base64 -> decode
+"aku sayang kamu" -> bytearray(b'aku sayang kamu') -> bytearray(b'q\xd7\xed>1\xb8\xfc*@\n\x8dL=q\xb0') -> b'cdftPjG4/CpACo1MPXGw' -> "cdftPjG4/CpACo1MPXGw"
+
+cdftPjG4/CpACo1MPXGw -> bytearray(b'q\xd7\xed>1\xb8\xfc*@\n\x8dL=q\xb0') -> bytearray(b'aku sayang kamu') -> "aku sayang kamu"
