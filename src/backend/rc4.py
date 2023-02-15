@@ -39,7 +39,6 @@ class rc4:
         elif type == "d":
             text = self.C
             result = self.C
-        
         i   = 0
         j   = 0
         idx = 0
@@ -69,13 +68,13 @@ class rc4:
         self.C = bytearray(self.base64_to_bytearray(self.C))
         self.KSA()
         self.P = self.PRGA("d")
-        # output dari encyption hanya bisa dalam bentuk base64
+        # output dari decrypt bisa berupa string atau base64
+        # meskipun sebenarnya yang diharapkan pasti string sih
         if isString:
             return self.P.decode()
         return self.bytearray_to_base64(self.P).decode()
 
 if __name__ == "__main__":
     r = rc4()
-    print(r.encrypt("aku sayang kamu", "a"))
-
+    assert r.encrypt("aku sayang kamu", "a") == "cdftPjG4/CpACo1MPXGw"
     print("We did it!")

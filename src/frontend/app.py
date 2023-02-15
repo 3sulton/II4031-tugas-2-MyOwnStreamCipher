@@ -1,3 +1,4 @@
+import datetime
 import sys, os.path
 be_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 + '/backend/')
@@ -31,6 +32,9 @@ def App(screen=None):
     window.geometry("900x600")
     window.configure(bg = "#F8EFD3")
 
+    # true ketika encrypt file selain txt
+    global is_file
+    is_file = False
 
     canvas = Canvas(
         window,
@@ -71,12 +75,16 @@ def App(screen=None):
     )
 
     def select_plain_file():
+        global is_file
         file_path = filedialog.askopenfilename(initialdir = Path(__file__),)
         ext = file_path.split(".")[-1]
         content = file_path
         if ext == "txt":
+            is_file = False
             with open(file_path, "r") as file:
                 content = file.read()
+        else:
+            is_file = True
         entry_input.delete("1.0", tk.END)
         entry_input.insert("1.0", content)
 
@@ -279,6 +287,13 @@ def App(screen=None):
         height=68.0
     )
 
+    def save_file():
+        if not is_file:
+            file_content = entry_output.get('1.0', 'end')
+            filename = "rc4-" + datetime.datetime.now().strftime("%H%M%S-%Y%m%d") + ".txt"
+            with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '/download/' + filename, "w") as file:
+                file.write(file_content)
+
     # download button
     button_download = PhotoImage(
         file=relative_to_assets("download.png"))
@@ -286,7 +301,7 @@ def App(screen=None):
         image=button_download,
         borderwidth=0,
         highlightthickness=0,
-        command=lambda: print("download clicked"),
+        command=save_file,
         relief="flat"
     )
     download.place(
