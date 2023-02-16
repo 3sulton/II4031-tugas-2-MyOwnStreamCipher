@@ -28,9 +28,10 @@ class rc4:
     def shuffle_S(self):
         len_k = len(self.K)
         j     = 0
-        for i in range(TOTAL_ASCII):
-            j = (j + self.S[i] + self.K[i % len_k]) % TOTAL_ASCII
-            self.S[i], self.S[j] = self.S[j], self.S[i]
+        for k in range(len_k):
+            for i in range(TOTAL_ASCII):
+                j = (j + self.S[i] + self.K[i % len_k] + i) % TOTAL_ASCII
+                self.S[i], self.S[j] = self.S[j], self.S[i]
 
     def PRGA(self, type):
         if type == "e":
@@ -46,8 +47,13 @@ class rc4:
             i = (i + 1) % TOTAL_ASCII
             j = (j + self.S[i]) % TOTAL_ASCII
             self.S[i], self.S[j] = self.S[j], self.S[i]
-            t = (self.S[i] + self.S[j]) % TOTAL_ASCII
-            result[idx] = self.S[t] ^ text[idx]
+            t1 = (self.S[i] + self.S[j]) % TOTAL_ASCII
+            # extended vigenere cipher with len_k shift
+            len_k = len(self.K)
+            t2 = (t1 + len_k) % TOTAL_ASCII
+            t3 = (self.S[(i >> 3) % TOTAL_ASCII] + self.S[j]) % TOTAL_ASCII
+            t4 = (self.S[i] + self.S[(j << 5) % TOTAL_ASCII]) % TOTAL_ASCII
+            result[idx] = ((((t1 ^ t2) % TOTAL_ASCII) + ((t3 + t4) % TOTAL_ASCII)) % TOTAL_ASCII) ^ text[idx] ^ j
         return result
 
     def bytearray_to_base64(self, text):
