@@ -364,6 +364,26 @@ def App(screen=None):
         height=40.0
     )
 
+    # message save
+    canvas.create_text(
+        300.0,
+        520.0,
+        anchor="nw",
+        text="*check the path above to see the downloaded file",
+        fill="#900C00",
+        font=("Poppins Regular", 15 * -1)
+    )
+
+    # message save
+    canvas.create_text(
+        300.0,
+        540.0,
+        anchor="nw",
+        text="*tombol download hanya untuk file",
+        fill="#900C00",
+        font=("Poppins Regular", 15 * -1)
+    )
+    
     image_credit = PhotoImage(
         file=relative_to_assets("credit.png"))
     credit = canvas.create_image(
